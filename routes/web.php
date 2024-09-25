@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DHT22Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,3 +20,5 @@ Route::get('/', function () {
 
 Route::get('/germinadores', function () {
     return view('germinadores');});
+
+    Route::get('/deshidratador', [DHT22Controller::class, 'index']);
