@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DHT22Controller;
+use App\Http\Controllers\GerminadorController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +20,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/germinadores', function () {
+/*Route::get('/germinadores', function () {
     return view('germinadores');});
+*/
 
-    Route::get('/deshidratador', [DHT22Controller::class, 'index']);
+
+Route::get('/germinadores', [GerminadorController::class, 'index']);
+
+Route::get('/deshidratador', [DHT22Controller::class, 'index']);
+
+Route::get('/exportar-excel', [GerminadorController::class, 'exportExcel']);
+

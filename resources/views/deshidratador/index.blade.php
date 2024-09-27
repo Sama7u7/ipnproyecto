@@ -125,7 +125,7 @@
         margin-bottom: 20px;
     }
     h2, h3 {
-        color: #007BFF; /* Color del encabezado */
+        color: #6c1d45; /* Color del encabezado */
     }
     table {
         width: 100%;
@@ -139,7 +139,7 @@
         text-align: center;
     }
     th {
-        background-color: #007BFF; /* Color del encabezado de la tabla */
+        background-color: #6c1d45; /* Color del encabezado de la tabla */
         color: white;
     }
     .table-container {

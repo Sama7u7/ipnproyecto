@@ -10,7 +10,7 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="{{ asset('public/favicon.ico') }}" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title')</title>
+    <title>Datos de Estación Meteorológica</title>
     <!-- Aquí puedes agregar tus estilos CSS -->
     <link href="{{ asset('css/style3.css') }}"  rel="stylesheet">
     <style>

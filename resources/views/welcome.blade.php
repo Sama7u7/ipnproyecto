@@ -3,21 +3,27 @@
 @section('content')
     <div class="container2">
         <!-- Sensor 1 -->
+        <a href="/germinadores">
         <div class="card">
             <h2>Germinadores</h2>
         </div>
-
+        </a>
         <!-- Sensor 2 -->
+        <a href="/deshidratador">
         <div class="card">
             <h2>Deshidratador</h2>
-            
         </div>
+        </a>
 
         <!-- Sensor 3 -->
+         <a href="/vivosun">
         <div class="card">
             <h2>VivoSun</h2>
            
         </div>
+        </a>
+
+       
 
 
     <style>
@@ -68,6 +74,9 @@
         }
         tbody tr:nth-child(even) {
             background-color: #cfb1bd;
+        }
+        a{
+            text-decoration: none;
         }
     </style>
     @endsection
