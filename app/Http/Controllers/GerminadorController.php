@@ -11,16 +11,21 @@ class GerminadorController extends Controller
 {
     public function index()
     {
-        // Obtener los últimos datos de cada tabla
+        // Obtener los últimos datos de Tb_DHT22
         $ultimo_dato = DB::table('Tb_DHT22')->latest('fecha_actual')->first();
 
-        // Obtener historial de datos
+        // Obtener historial de Tb_DHT22
         $resultado_todos = DB::table('Tb_DHT22')->get();
 
-        return view('germinadores.index', compact('ultimo_dato',
-                                             'resultado_todos'));
-    }
+        // Obtener los últimos datos de tb_bh1750_1
+        $ultimo_dato_bh1750 = DB::table('tb_bh1750_1')->latest('fecha_actual')->first();
 
+        // Obtener historial de tb_bh1750_1
+        $resultado_todos_bh1750 = DB::table('tb_bh1750_1')->get();
+
+        // Retornar la vista con los datos de ambas tablas
+        return view('germinadores.index', compact('ultimo_dato', 'resultado_todos', 'ultimo_dato_bh1750', 'resultado_todos_bh1750'));
+    }
     
     public function exportExcel()
     {

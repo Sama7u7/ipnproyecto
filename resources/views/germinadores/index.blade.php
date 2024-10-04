@@ -12,13 +12,18 @@
         <h2>Humedad</h2>
         <p id="humidity-value"><?php echo isset($ultimo_dato->Humedad) ? $ultimo_dato->Humedad . " %" : "Sin datos"; ?></p>
     </div>
+    <div class="card" id="lux-card">
+        <img src="https://cdn-icons-png.flaticon.com/128/1083/1083117.png" alt="Date Icon">
+        <h2>Luz</h2>
+        <p id="date-value"><?php echo isset($ultimo_dato_bh1750->Luz) ? $ultimo_dato_bh1750->Luz : "Sin datos"; ?></p>
+    </div> 
     <div class="card" id="date-card">
         <img src="https://cdn-icons-png.flaticon.com/128/9187/9187977.png" alt="Date Icon">
         <h2>Fecha y Hora</h2>
         <p id="date-value"><?php echo isset($ultimo_dato->fecha_actual) ? $ultimo_dato->fecha_actual : "Sin datos"; ?></p>
     </div> 
 </div>
-
+<!--
 <div class="container">
     <div class="card" id="temp-card">
         <img src="https://cdn-icons-png.flaticon.com/128/1959/1959311.png" alt="Temperature Icon">
@@ -36,9 +41,10 @@
         <p id="date-value"><?php echo isset($ultimo_dato->fecha_actual) ? $ultimo_dato->fecha_actual : "Sin datos"; ?></p>
     </div>
 </div>
+-->
 
 <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
-    <a href="/exportar-excel" class="btn btn-primary">Descargar Excel</a>
+    <a href="/exportar-excel" class="btn btn-danger">Descargar Excel</a>
 </div>
 
 
@@ -48,6 +54,9 @@
 </div>
 <div class="chart-container">
     <canvas id="humidity-chart"></canvas>
+</div>
+<div class="chart-container">
+    <canvas id="lux-chart"></canvas>
 </div>
 
 <h2 style="text-align: center;">Historial de Datos</h2>
@@ -94,10 +103,13 @@
     document.addEventListener('DOMContentLoaded', function() {
         var tempData = @json($resultado_todos->pluck('Temperatura'));
         var humidityData = @json($resultado_todos->pluck('Humedad'));
-        var labels = @json($resultado_todos->pluck('fecha_actual'));
+        var luxData = @json($resultado_todos_bh1750->pluck('Luz'));
+        var labels = @json($resultado_todos_bh1750->pluck('fecha_actual'));
+        var labelslux = @json($resultado_todos->pluck('fecha_actual'));
 
         var tempCtx = document.getElementById('temp-chart').getContext('2d');
         var humidityCtx = document.getElementById('humidity-chart').getContext('2d');
+        var luxCtx = document.getElementById('lux-chart').getContext('2d');
 
         new Chart(tempCtx, {
             type: 'line',
@@ -124,7 +136,23 @@
                 }]
             }
         });
+
+        new Chart(luxCtx, {
+            type: 'line',
+            data: {
+                labels: labelslux,
+                datasets: [{
+                    label: 'Luz (lx)',
+                    data: luxData,
+                    borderColor: 'rgba(255, 206, 86, 1)', 
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',  
+                }]
+            }
+        });
+
     });
+
+    
 </script>
 
 <!-- Botón para mostrar/ocultar los datos -->
