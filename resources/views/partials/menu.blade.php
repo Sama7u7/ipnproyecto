@@ -17,7 +17,7 @@
                     <a class="nav-link" href="/"><h4>Inicio</h4></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/germinadores"><h4>Germinadores</h4></a>
+                    <a class="nav-link" href="/germinadores-list"><h4>Germinadores</h4></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/deshidratador"><h4>Deshidratador</h4></a>

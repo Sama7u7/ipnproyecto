@@ -31,3 +31,7 @@ Route::get('/deshidratador', [DHT22Controller::class, 'index']);
 
 Route::get('/exportar-excel', [GerminadorController::class, 'exportExcel']);
 
+Route::get('/germinadores-list', [GerminadorController::class, 'listGerminadores'])->name('germinadores.list');
+Route::get('/germinadores/{nombre}', [GerminadorController::class, 'show'])->name('germinadores.show');
+Route::get('/germinadores/create', [GerminadorController::class, 'create'])->name('germinadores.create');
+Route::post('/germinadores/store', [GerminadorController::class, 'store'])->name('germinadores.store');
