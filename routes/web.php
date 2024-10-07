@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DHT22Controller;
 use App\Http\Controllers\GerminadorController;
 use Illuminate\Support\Facades\DB;
-
+use App\Http\Controllers\LechugonesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,18 +16,18 @@ use Illuminate\Support\Facades\DB;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-
-// Obtener todos los germinadores de la base de datos
-Route::group([], function () {
-    $germinadores = DB::table('germinadores')->get();
-
-    foreach ($germinadores as $germinador) {
-        Route::post("/germinadores/{$germinador->nombre}/data", "{$germinador->nombre}Controller@receiveData")
-            ->name("germinadores.{$germinador->nombre}.data");
-    }
+Route::get('/', function () {
+    return view('welcome');
 });
 
+// Obtener todos los germinadores de la base de datos
+
+$germinadores = DB::table('germinadores')->get();
+
+foreach ($germinadores as $germinador) {
+    Route::post("/germinadores/{$germinador->nombre}/data", [LechugonesController::class, 'receiveData'])
+        ->name("germinadores.{$germinador->nombre}.data");
+}
 
 /*Route::get('/germinadores', function () {
     return view('germinadores');});

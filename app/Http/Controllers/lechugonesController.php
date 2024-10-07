@@ -1,13 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class lechugonesController extends Controller
+class LechugonesController extends Controller
 {
-    //
-    public function receiveData(Request $request, $nombre)
+    public function receiveData(Request $request)
     {
         // Validar los datos que recibes del ESP32
         $request->validate([
