@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container d-flex justify-content-between">
         <!-- Logo alineado a la izquierda -->
         <a class="navbar-brand d-flex align-items-center" href="/">
@@ -26,4 +26,4 @@
         </div>
     </div>
 </nav>
-<br>
+<br><br><br><br><br><br><br><br>

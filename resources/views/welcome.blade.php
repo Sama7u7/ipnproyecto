@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container2">
+    <div class="container">
         <!-- Sensor 1 -->
-        <a href="/germinadores">
+        <a href="/germinadores-list">
         <div class="card">
             <h2>Germinadores</h2>
         </div>
