@@ -90,48 +90,52 @@ class GerminadorController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
         ]);
-    
+
+        // Obtener el nombre y la descripción del germinador
         $nombre = $request->input('nombre');
         $descripcion = $request->input('descripcion');
-    
-        // Insertar el germinador en la base de datos
+
+        // Convertir el nombre del germinador a minúsculas
+        $nombre_min = strtolower($nombre);
+
+        // Insertar el germinador en la base de datos (guardando el nombre tal cual, no en minúsculas)
         DB::table('germinadores')->insert([
             'nombre' => $nombre,
             'descripcion' => $descripcion,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-    
-        // Crear las tablas correspondientes para el germinador
-        Schema::create("{$nombre}_luz", function (Blueprint $table) {
+
+        // Crear las tablas correspondientes para el germinador con el nombre en minúsculas
+        Schema::create("{$nombre_min}_luz", function (Blueprint $table) {
             $table->id();
             $table->char('luz');
             $table->timestamp('fecha_actual')->useCurrent();
         });
-    
-        Schema::create("{$nombre}_temperatura_humedad", function (Blueprint $table) {
+
+        Schema::create("{$nombre_min}_temperatura_humedad", function (Blueprint $table) {
             $table->id();
             $table->char('temperatura');
             $table->char('humedad');
             $table->timestamp('fecha_actual')->useCurrent();
         });
-    
-        Schema::create("{$nombre}_fotos", function (Blueprint $table) {
+
+        Schema::create("{$nombre_min}_fotos", function (Blueprint $table) {
             $table->id();
             $table->string('ruta_foto');
             $table->timestamp('fecha_actual')->useCurrent();
         });
-    
-        // Crear el controlador dinámicamente
-        $nombreControlador = ucfirst($nombre) . 'Controller';
+
+        // Crear el controlador dinámicamente con el nombre en minúsculas
+        $nombreControlador = ucfirst($nombre_min) . 'Controller';
         Artisan::call('make:controller', [
             'name' => $nombreControlador
         ]);
-    
+
         // Ruta del nuevo controlador
         $controllerPath = app_path("Http/Controllers/{$nombreControlador}.php");
-        
-        // Método para recibir datos del ESP32
+
+        // Contenido del controlador, incluyendo las rutas específicas dentro del propio controlador y usando el nombre en minúsculas
         $controllerContent = <<<EOD
         <?php
         
@@ -139,10 +143,18 @@ class GerminadorController extends Controller
         
         use Illuminate\Http\Request;
         use Illuminate\Support\Facades\DB;
-        
+        use Illuminate\Support\Facades\Route;
+
         class {$nombreControlador} extends Controller
         {
-            public function receiveData(Request \$request, \$nombre)
+            public function __construct()
+            {
+                // Crear la ruta para recibir los datos directamente en este controlador usando el nombre en minúsculas
+                Route::post("/germinadores/{$nombre_min}/data", [self::class, 'receiveData'])
+                    ->name("germinadores.{$nombre_min}.data");
+            }
+
+            public function receiveData(Request \$request)
             {
                 // Validar los datos que recibes del ESP32
                 \$request->validate([
@@ -150,34 +162,37 @@ class GerminadorController extends Controller
                     'humedad' => 'required|numeric',
                     'luz' => 'required|numeric',
                 ]);
-        
+
                 // Obtener los datos
                 \$temperatura = \$request->input('temperatura');
                 \$humedad = \$request->input('humedad');
                 \$luz = \$request->input('luz');
-        
-                // Insertar los datos en la base de datos
-                DB::table("{$nombre}_temperatura_humedad")->insert([
+
+                // Insertar los datos en la base de datos, usando el nombre en minúsculas para las tablas
+                DB::table("{$nombre_min}_temperatura_humedad")->insert([
                     'temperatura' => \$temperatura,
                     'humedad' => \$humedad,
                     'fecha_actual' => now(),
                 ]);
-        
-                DB::table("{$nombre}_luz")->insert([
+
+                DB::table("{$nombre_min}_luz")->insert([
                     'luz' => \$luz,
                     'fecha_actual' => now(),
                 ]);
-        
+
                 return response()->json(['success' => 'Datos recibidos correctamente.']);
             }
         }
         EOD;
-        
+
         // Escribir el contenido en el archivo del controlador
         File::put($controllerPath, $controllerContent);
-    
+
         return redirect()->route('germinadores.list')->with('success', 'Germinador y controlador creados exitosamente.');
     }
+
+
+
     //FUNCION SHOW SIRVE PARA MOSTRAR LOS DATOS DE UN GERMINADOR EN ESPECIFICO AL PRESIONAR EL BOTON VER DATOS 
     public function show($nombre)
 {

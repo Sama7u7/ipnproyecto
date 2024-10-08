@@ -25,8 +25,21 @@ Route::get('/', function () {
 $germinadores = DB::table('germinadores')->get();
 
 foreach ($germinadores as $germinador) {
-    Route::post("/germinadores/{$germinador->nombre}/data", [LechugonesController::class, 'receiveData'])
-        ->name("germinadores.{$germinador->nombre}.data");
+    // Convertir el nombre del germinador a minúsculas
+    $nombre_min = strtolower($germinador->nombre);
+
+    // Generar dinámicamente el nombre del controlador según el germinador
+    $nombreControlador = ucfirst($nombre_min) . 'Controller';
+
+    // Asegúrate de que la clase del controlador exista antes de intentar registrar la ruta
+    if (class_exists("App\\Http\\Controllers\\{$nombreControlador}")) {
+        Route::post("/germinadores/{$nombre_min}/data", ["App\\Http\\Controllers\\{$nombreControlador}", 'receiveData'])
+            ->name("germinadores.{$nombre_min}.data");
+    } else {
+        // Maneja el caso en que el controlador no existe
+        // Podrías lanzar un error o simplemente no registrar la ruta
+        // Log::error("Controlador {$nombreControlador} no existe.");
+    }
 }
 
 /*Route::get('/germinadores', function () {

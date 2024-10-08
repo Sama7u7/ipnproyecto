@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
-class PruebaController extends Controller
+class Germinador69Controller extends Controller
 {
-    public function receiveData(Request $request, $nombre)
+    public function __construct()
+    {
+        // Crear la ruta para recibir los datos directamente en este controlador usando el nombre en minúsculas
+        Route::post("/germinadores/germinador69/data", [self::class, 'receiveData'])
+            ->name("germinadores.germinador69.data");
+    }
+
+    public function receiveData(Request $request)
     {
         // Validar los datos que recibes del ESP32
         $request->validate([
@@ -21,14 +29,14 @@ class PruebaController extends Controller
         $humedad = $request->input('humedad');
         $luz = $request->input('luz');
 
-        // Insertar los datos en la base de datos
-        DB::table("prueba_temperatura_humedad")->insert([
+        // Insertar los datos en la base de datos, usando el nombre en minúsculas para las tablas
+        DB::table("germinador69_temperatura_humedad")->insert([
             'temperatura' => $temperatura,
             'humedad' => $humedad,
             'fecha_actual' => now(),
         ]);
 
-        DB::table("prueba_luz")->insert([
+        DB::table("germinador69_luz")->insert([
             'luz' => $luz,
             'fecha_actual' => now(),
         ]);

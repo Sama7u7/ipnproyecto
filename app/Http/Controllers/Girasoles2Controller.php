@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PruebaController extends Controller
+class Girasoles2Controller extends Controller
 {
     public function receiveData(Request $request, $nombre)
     {
@@ -20,15 +20,18 @@ class PruebaController extends Controller
         $temperatura = $request->input('temperatura');
         $humedad = $request->input('humedad');
         $luz = $request->input('luz');
+        
+         // Convertir el nombre del germinador a minúsculas para las tablas
+         $nombre_min = strtolower($nombre);
 
         // Insertar los datos en la base de datos
-        DB::table("prueba_temperatura_humedad")->insert([
+        DB::table("{$nombre_min}_temperatura_humedad")->insert([
             'temperatura' => $temperatura,
             'humedad' => $humedad,
             'fecha_actual' => now(),
         ]);
 
-        DB::table("prueba_luz")->insert([
+        DB::table("{$nombre_min}_luz")->insert([
             'luz' => $luz,
             'fecha_actual' => now(),
         ]);
