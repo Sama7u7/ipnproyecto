@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DHT22Controller;
 use App\Http\Controllers\GerminadorController;
+use App\Http\Controllers\DeshidratadorController;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\LechugonesController;
 
@@ -42,14 +43,45 @@ foreach ($germinadores as $germinador) {
     }
 }
 
-/*Route::get('/germinadores', function () {
-    return view('germinadores');});
-*/
-
-Route::get('/deshidratador', [DHT22Controller::class, 'index']);
 
 Route::get('/germinadores/{nombre}/export-excel', [GerminadorController::class, 'exportExcel'])->name('germinadores.exportExcel');
 Route::get('/germinadores/create', [GerminadorController::class, 'create'])->name('germinadores.create');
 Route::get('/germinadores/{nombre}', [GerminadorController::class, 'show'])->name('germinadores.show');
 Route::get('/germinadores-list', [GerminadorController::class, 'listGerminadores'])->name('germinadores.list');
 Route::post('/germinadores/store', [GerminadorController::class, 'store'])->name('germinadores.store');
+
+
+
+// Obtener todos los deshidratadores de la base de datos
+/*
+Route::get('/deshidratador', [DHT22Controller::class, 'index']);
+$deshidratadores = DB::table('deshidratadores')->get();
+
+foreach ($deshidratadores as $deshidratador) {
+    // Convertir el nombre del germinador a minúsculas
+    $nombre_min = strtolower($deshidratador->nombre);
+
+    // Generar dinámicamente el nombre del controlador según el germinador
+    $nombreControlador = ucfirst($nombre_min) . 'Controller';
+
+    // Asegúrate de que la clase del controlador exista antes de intentar registrar la ruta
+    if (class_exists("App\\Http\\Controllers\\{$nombreControlador}")) {
+        Route::post("/germinadores/{$nombre_min}/data", ["App\\Http\\Controllers\\{$nombreControlador}", 'receiveData'])
+            ->name("germinadores.{$nombre_min}.data");
+    } else {
+        // Maneja el caso en que el controlador no existe
+        // Podrías lanzar un error o simplemente no registrar la ruta
+        // Log::error("Controlador {$nombreControlador} no existe.");
+    }
+}
+
+Route::get('/deshidratadores/{nombre}/export-excel', [DeshidratadorController::class, 'exportExcel'])->name('deshidratadores.exportExcel');
+Route::get('/deshidratadores/create', [DeshidratadorController::class, 'create'])->name('deshidratadores.create');
+Route::get('/deshidratadores/{nombre}', [DeshidratadorController::class, 'show'])->name('deshidratadores.show');
+Route::get('/deshidratadores-list', [DeshidratadorController::class, 'listDeshidratadores'])->name('deshidratadores.list');
+Route::post('/deshidratadores/store', [DeshidratadorController::class, 'store'])->name('deshidratadores.store');
+*/
+Route::get('/deshidratadores/create', [DeshidratadorController::class, 'create'])->name('deshidratadores.create');
+Route::get('/deshidratadores-list', [DeshidratadorController::class, 'listDeshidratadores'])->name('deshidratadores.list');
+Route::post('/deshidratadores/store', [DeshidratadorController::class, 'store'])->name('deshidratadores.store');
+Route::get('/deshidratadores/{nombre}', [DeshidratadorController::class, 'show'])->name('deshidratador.show');
