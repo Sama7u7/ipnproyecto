@@ -9,7 +9,7 @@
         </div>
         </a>
         <!-- Sensor 2 -->
-        <a href="/deshidratador">
+        <a href="/deshidratadores-list">
         <div class="card">
             <h2>Deshidratador</h2>
         </div>

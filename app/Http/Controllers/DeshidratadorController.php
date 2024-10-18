@@ -13,247 +13,232 @@ use Illuminate\Support\Facades\File;
 
 class DeshidratadorController extends Controller
 {
-    
-    
- //FUNCION EXPORT EXCEL SIRVE PARA OBTENER LOS DATOS DE UN GERMINADOR EN ESPECIFICO Y VOLCARLOS A UN EXCEL 
- public function exportExcel($nombre)
- {
-     // Sanitizar el nombre del germinador
-     $nombre_sanitizado = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($nombre));
- 
-     // Obtener los datos de la tabla de temperatura y humedad para el germinador especificado
-     $datosdh1 = DB::table("{$nombre_sanitizado}_dht1")->get();
-     $datosdh2 = DB::table("{$nombre_sanitizado}_dht2")->get();
-     $datosdh3 = DB::table("{$nombre_sanitizado}_dht3")->get();
-     
-     // Obtener los datos de la tabla de luz para el germinador especificado
-     $datospeso = DB::table("{$nombre_sanitizado}_peso")->get();
- 
-     // Crear un nuevo objeto Spreadsheet
-     $spreadsheet = new Spreadsheet();
-     $sheet = $spreadsheet->getActiveSheet();
- 
-     // Establecer los encabezados
-     $sheet->setCellValue('A1', 'ID');
-     $sheet->setCellValue('B1', 'Temperatura');
-     $sheet->setCellValue('C1', 'Humedad');
-     $sheet->setCellValue('D1', 'Fecha');
-     $sheet->setCellValue('F1', 'ID');
-     $sheet->setCellValue('G1', 'Temperatura');
-     $sheet->setCellValue('H1', 'Humedad');
-     $sheet->setCellValue('I1', 'Fecha');
-     $sheet->setCellValue('K1', 'ID');
-     $sheet->setCellValue('L1', 'Temperatura');
-     $sheet->setCellValue('M1', 'Humedad');
-     $sheet->setCellValue('N1', 'Fecha');
-     $sheet->setCellValue('P1', 'ID');
-     $sheet->setCellValue('Q1', 'Peso');
-     $sheet->setCellValue('R1', 'Fecha');
-     
- 
-     // Escribir los datos de temperatura y humedad en el archivo
-     $row = 2; // Comenzar en la fila 2 para no sobrescribir los encabezados
-     foreach ($datosdh1 as $dato) {
-         $sheet->setCellValue('A' . $row, (int)$dato->id);
-         $sheet->setCellValue('B' . $row, $dato->temperatura);
-         $sheet->setCellValue('C' . $row, $dato->humedad);
-         $sheet->setCellValue('D' . $row, $dato->fecha_actual);
-         $row++;
-     }
-        // Escribir los datos de temperatura y humedad en el archivo
-        $row = 2; // Comenzar en la fila 2 para no sobrescribir los encabezados
+    // Método para exportar los datos de un deshidratador a Excel
+    public function exportExcel($nombre)
+    {
+        // Sanitizar el nombre del deshidratador
+        $nombre_sanitizado = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($nombre));
+
+        // Obtener los datos de las tablas de los sensores DHT22 y peso
+        $datosdh1 = DB::table("{$nombre_sanitizado}_dht1")->get();
+        $datosdh2 = DB::table("{$nombre_sanitizado}_dht2")->get();
+        $datosdh3 = DB::table("{$nombre_sanitizado}_dht3")->get();
+        $datospeso = DB::table("{$nombre_sanitizado}_peso")->get();
+
+        // Crear un nuevo objeto Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Establecer los encabezados
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Temperatura');
+        $sheet->setCellValue('C1', 'Humedad');
+        $sheet->setCellValue('D1', 'Fecha');
+        $sheet->setCellValue('F1', 'ID');
+        $sheet->setCellValue('G1', 'Temperatura');
+        $sheet->setCellValue('H1', 'Humedad');
+        $sheet->setCellValue('I1', 'Fecha');
+        $sheet->setCellValue('K1', 'ID');
+        $sheet->setCellValue('L1', 'Temperatura');
+        $sheet->setCellValue('M1', 'Humedad');
+        $sheet->setCellValue('N1', 'Fecha');
+        $sheet->setCellValue('P1', 'ID');
+        $sheet->setCellValue('Q1', 'Peso');
+        $sheet->setCellValue('R1', 'Fecha');
+
+        // Escribir los datos de temperatura y humedad para cada tabla
+        $row = 2;
         foreach ($datosdh1 as $dato) {
-            $sheet->setCellValue('F' . $row, (int)$dato->id);
+            $sheet->setCellValue('A' . $row, $dato->id);
+            $sheet->setCellValue('B' . $row, $dato->temperatura);
+            $sheet->setCellValue('C' . $row, $dato->humedad);
+            $sheet->setCellValue('D' . $row, $dato->fecha_actual);
+            $row++;
+        }
+
+        $row = 2;
+        foreach ($datosdh2 as $dato) {
+            $sheet->setCellValue('F' . $row, $dato->id);
             $sheet->setCellValue('G' . $row, $dato->temperatura);
             $sheet->setCellValue('H' . $row, $dato->humedad);
             $sheet->setCellValue('I' . $row, $dato->fecha_actual);
             $row++;
         }
 
-           // Escribir los datos de temperatura y humedad en el archivo
-     $row = 2; // Comenzar en la fila 2 para no sobrescribir los encabezados
-     foreach ($datosdh1 as $dato) {
-         $sheet->setCellValue('K' . $row, (int)$dato->id);
-         $sheet->setCellValue('L' . $row, $dato->temperatura);
-         $sheet->setCellValue('M' . $row, $dato->humedad);
-         $sheet->setCellValue('N' . $row, $dato->fecha_actual);
-         $row++;
-     }
- 
-     // Escribir los datos de luz en el archivo
-     $row = 2; // Resetear la fila para empezar en la columna de luz
-     foreach ($datospeso as $dato) {
-         $sheet->setCellValue('P' . $row, $dato->id);
-         $sheet->setCellValue('Q' . $row, $dato->peso);
-         $sheet->setCellValue('R' . $row, $dato->fecha);
-         $row++;
-     }
- 
-     // Establecer el nombre del archivo
-     $filename = 'datos_deshidratador_' . $nombre_sanitizado . '_' . date('Y-m-d') . '.xlsx';
- 
-     // Configurar el encabezado de la respuesta
-     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-     header('Content-Disposition: attachment; filename="' . $filename . '"');
-     header('Cache-Control: max-age=0');
- 
-     // Crear un escritor para el archivo y guardarlo en la salida
-     $writer = new Xlsx($spreadsheet);
-     $writer->save('php://output');
-     exit();
- }
- 
- 
-     // Método para mostrar la lista de TODOS los germinadores
-     public function listDeshidratadores()
-     {
-         $deshidratadores = DB::table('deshidratadores')->get();
-         return view('deshidratadores.list', compact('deshidratadores'));
-     }
- 
-     // Método para mostrar el formulario de creación de un nuevo germinador
-     public function create()
-     {
-         return view('deshidratadores.create');
-     }
- 
-     // Método para almacenar un nuevo germinador
-     public function store(Request $request)
-     {
-         // Validar los datos
-         $request->validate([
-             'nombre' => 'required|string|max:255',
-             'descripcion' => 'required|string',
-         ]);
- 
-         // Obtener el nombre y la descripción del germinador
-         $nombre = $request->input('nombre');
-         $descripcion = $request->input('descripcion');
- 
-         // Convertir el nombre del germinador a minúsculas
-         $nombre_min = strtolower($nombre);
- 
-         // Insertar el germinador en la base de datos (guardando el nombre tal cual, no en minúsculas)
-         DB::table('deshidratadores')->insert([
-             'nombre' => $nombre,
-             'descripcion' => $descripcion,
-             'created_at' => now(),
-             'updated_at' => now(),
-         ]);
- 
-         // Crear las tablas correspondientes para el germinador con el nombre en minúsculas
-         Schema::create("{$nombre_min}_peso", function (Blueprint $table) {
-             $table->id();
-             $table->char('peso');
-             $table->timestamp('fecha_actual')->useCurrent();
-         });
- 
-         Schema::create("{$nombre_min}_dht1", function (Blueprint $table) {
-             $table->id();
-             $table->char('temperatura');
-             $table->char('humedad');
-             $table->timestamp('fecha_actual')->useCurrent();
-         });
-         
-         Schema::create("{$nombre_min}_dht2", function (Blueprint $table) {
+        $row = 2;
+        foreach ($datosdh3 as $dato) {
+            $sheet->setCellValue('K' . $row, $dato->id);
+            $sheet->setCellValue('L' . $row, $dato->temperatura);
+            $sheet->setCellValue('M' . $row, $dato->humedad);
+            $sheet->setCellValue('N' . $row, $dato->fecha_actual);
+            $row++;
+        }
+
+        // Escribir los datos de peso
+        $row = 2;
+        foreach ($datospeso as $dato) {
+            $sheet->setCellValue('P' . $row, $dato->id);
+            $sheet->setCellValue('Q' . $row, $dato->peso);
+            $sheet->setCellValue('R' . $row, $dato->fecha_actual);
+            $row++;
+        }
+
+        // Establecer el nombre del archivo
+        $filename = 'datos_deshidratador_' . $nombre_sanitizado . '_' . date('Y-m-d') . '.xlsx';
+
+        // Configurar el encabezado de la respuesta
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        // Crear un escritor para el archivo y guardarlo en la salida
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit();
+    }
+
+    // Método para mostrar la lista de TODOS los deshidratadores
+    public function listDeshidratadores()
+    {
+        $deshidratadores = DB::table('deshidratadores')->get();
+        return view('deshidratadores.list', compact('deshidratadores'));
+    }
+
+    // Método para mostrar el formulario de creación de un nuevo deshidratador
+    public function create()
+    {
+        return view('deshidratadores.create');
+    }
+
+    // Método para almacenar un nuevo deshidratador
+    public function store(Request $request)
+    {
+        // Validar los datos
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+        ]);
+
+        // Obtener el nombre y la descripción del deshidratador
+        $nombre = $request->input('nombre');
+        $descripcion = $request->input('descripcion');
+        $nombre_min = strtolower($nombre);
+
+        // Insertar el deshidratador en la base de datos
+        DB::table('deshidratadores')->insert([
+            'nombre' => $nombre,
+            'descripcion' => $descripcion,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Crear las tablas correspondientes para el deshidratador
+        Schema::create("{$nombre_min}_peso", function (Blueprint $table) {
+            $table->id();
+            $table->char('peso');
+            $table->timestamp('fecha_actual')->useCurrent();
+        });
+
+        Schema::create("{$nombre_min}_dht1", function (Blueprint $table) {
             $table->id();
             $table->char('temperatura');
             $table->char('humedad');
             $table->timestamp('fecha_actual')->useCurrent();
         });
-        
+
+        Schema::create("{$nombre_min}_dht2", function (Blueprint $table) {
+            $table->id();
+            $table->char('temperatura');
+            $table->char('humedad');
+            $table->timestamp('fecha_actual')->useCurrent();
+        });
+
         Schema::create("{$nombre_min}_dht3", function (Blueprint $table) {
             $table->id();
             $table->char('temperatura');
             $table->char('humedad');
             $table->timestamp('fecha_actual')->useCurrent();
         });
- 
-       
-         // Crear el controlador dinámicamente con el nombre en minúsculas
-         $nombreControlador = ucfirst($nombre_min) . 'Controller';
-         Artisan::call('make:controller', [
-             'name' => $nombreControlador
-         ]);
- 
-         // Ruta del nuevo controlador
-         $controllerPath = app_path("Http/Controllers/{$nombreControlador}.php");
- 
-         // Contenido del controlador, incluyendo las rutas específicas dentro del propio controlador y usando el nombre en minúsculas
-         $controllerContent = <<<EOD
-         <?php
-         
-         namespace App\Http\Controllers;
-         
-         use Illuminate\Http\Request;
-         use Illuminate\Support\Facades\DB;
-         use Illuminate\Support\Facades\Route;
- 
-         class {$nombreControlador} extends Controller
-         {
-             public function __construct()
-             {
-                 // Crear la ruta para recibir los datos directamente en este controlador usando el nombre en minúsculas
-                 Route::post("/deshidrtadores/{$nombre_min}/data", [self::class, 'receiveData'])
-                     ->name("deshidrtadores.{$nombre_min}.data");
-             }
- 
-             public function receiveData(Request \$request)
-             {
-                 // Validar los datos que recibes del ESP32
-                 \$request->validate([
-                     'temperatura' => 'required|numeric',
-                     'humedad' => 'required|numeric',
-                     'luz' => 'required|numeric',
-                     'peso' => 'required|numeric',
-                 ]);
- 
-                 // Obtener los datos
-                 \$temperatura = \$request->input('temperatura');
-                 \$humedad = \$request->input('humedad');
-                 \$luz = \$request->input('luz');
-                 \$peso = \$request->input('peso');
- 
-                 // Insertar los datos en la base de datos, usando el nombre en minúsculas para las tablas
-                 DB::table("{$nombre_min}_dht1")->insert([
-                     'temperatura' => \$temperatura,
-                     'humedad' => \$humedad,
-                     'fecha_actual' => now(),
-                 ]);
 
-                    
-                 DB::table("{$nombre_min}_dht2")->insert([
-                     'temperatura' => \$temperatura,
-                     'humedad' => \$humedad,
-                     'fecha_actual' => now(),
-                 ]);
+        // Crear el controlador dinámicamente con el nombre del deshidratador
+        $nombreControlador = ucfirst($nombre_min) . 'Controller';
+        Artisan::call('make:controller', ['name' => $nombreControlador]);
 
-                  DB::table("{$nombre_min}_dht3")->insert([
-                     'temperatura' => \$temperatura,
-                     'humedad' => \$humedad,
-                     'fecha_actual' => now(),
-                 ]);
+        // Ruta del nuevo controlador
+        $controllerPath = app_path("Http/Controllers/{$nombreControlador}.php");
 
-                  DB::table("{$nombre_min}_peso")->insert([
-                     'peso' => \$peso,
-                     'fecha_actual' => now(),
-                 ]);
- 
- 
- 
-                 return response()->json(['success' => 'Datos recibidos correctamente.']);
-             }
-         }
-         EOD;
- 
-         // Escribir el contenido en el archivo del controlador
-         File::put($controllerPath, $controllerContent);
- 
-         return redirect()->route('deshidratadores.list')->with('success', 'Deshidratador y controlador creados exitosamente.');
-     }
- 
- 
- 
+        // Contenido del controlador
+        $controllerContent = <<<EOD
+        <?php
+        
+        namespace App\Http\Controllers;
+        
+        use Illuminate\Http\Request;
+        use Illuminate\Support\Facades\DB;
+        use Illuminate\Support\Facades\Route;
+        
+        class {$nombreControlador} extends Controller
+        {
+            public function __construct()
+            {
+                Route::post("/deshidratadores/{$nombre_min}/data", [self::class, 'receiveData'])
+                    ->name("deshidratadores.{$nombre_min}.data");
+            }
+        
+            public function receiveData(Request \$request)
+            {
+                // Validar los datos
+                \$request->validate([
+                    'temperatura1' => 'required|numeric',
+                    'humedad1' => 'required|numeric',
+                    'temperatura2' => 'required|numeric',
+                    'humedad2' => 'required|numeric',
+                    'temperatura3' => 'required|numeric',
+                    'humedad3' => 'required|numeric',
+                    'peso' => 'required|numeric',
+                ]);
+        
+                // Insertar los datos del primer sensor DHT22 en la tabla dht1
+                DB::table("{$nombre_min}_dht1")->insert([
+                    'temperatura' => \$request->input('temperatura1'),
+                    'humedad' => \$request->input('humedad1'),
+                    'fecha_actual' => now(),
+                ]);
+        
+                // Insertar los datos del segundo sensor DHT22 en la tabla dht2
+                DB::table("{$nombre_min}_dht2")->insert([
+                    'temperatura' => \$request->input('temperatura2'),
+                    'humedad' => \$request->input('humedad2'),
+                    'fecha_actual' => now(),
+                ]);
+        
+                // Insertar los datos del tercer sensor DHT22 en la tabla dht3
+                DB::table("{$nombre_min}_dht3")->insert([
+                    'temperatura' => \$request->input('temperatura3'),
+                    'humedad' => \$request->input('humedad3'),
+                    'fecha_actual' => now(),
+                ]);
+        
+             
+                // Insertar los datos del sensor de peso (HX711)
+                DB::table("{$nombre_min}_peso")->insert([
+                    'peso' => \$request->input('peso'),
+                    'fecha_actual' => now(),
+                ]);
+        
+                return response()->json(['message' => 'Datos recibidos correctamente.'], 200);
+            }
+        }
+        EOD;
+        
+        // Guardar el controlador con su contenido
+        File::put($controllerPath, $controllerContent);
+
+        // Redirigir a la lista de deshidratadores
+        return redirect()->route('deshidratadores.list')->with('success', 'Deshidratador creado exitosamente.');
+    }
+
+
      //FUNCION SHOW SIRVE PARA MOSTRAR LOS DATOS DE UN DESHIDRATADOR EN ESPECIFICO AL PRESIONAR EL BOTON VER DATOS 
      public function show($nombre)
  {

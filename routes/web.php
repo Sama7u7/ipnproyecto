@@ -39,7 +39,7 @@ foreach ($germinadores as $germinador) {
     } else {
         // Maneja el caso en que el controlador no existe
         // Podrías lanzar un error o simplemente no registrar la ruta
-        // Log::error("Controlador {$nombreControlador} no existe.");
+        Log::error("Controlador {$nombreControlador} no existe.");
     }
 }
 
@@ -81,6 +81,28 @@ Route::get('/deshidratadores/{nombre}', [DeshidratadorController::class, 'show']
 Route::get('/deshidratadores-list', [DeshidratadorController::class, 'listDeshidratadores'])->name('deshidratadores.list');
 Route::post('/deshidratadores/store', [DeshidratadorController::class, 'store'])->name('deshidratadores.store');
 */
+
+$deshidratadores = DB::table('deshidratadores')->get();
+
+foreach ($deshidratadores as $deshidratador) {
+    // Convertir el nombre del deshidratador a minúsculas
+    $nombre_min = strtolower($deshidratador->nombre);
+
+    // Generar dinámicamente el nombre del controlador según el deshidratador
+    $nombreControlador = ucfirst($nombre_min) . 'Controller';
+
+    // Asegúrate de que la clase del controlador exista antes de intentar registrar la ruta
+    if (class_exists("App\\Http\\Controllers\\{$nombreControlador}")) {
+        Route::post("/deshidratadores/{$nombre_min}/data", ["App\\Http\\Controllers\\{$nombreControlador}", 'receiveData'])
+            ->name("deshidratadores.{$nombre_min}.data");
+    } else {
+        // Maneja el caso en que el controlador no existe
+        // Podrías lanzar un error o simplemente no registrar la ruta
+        Log::error("Controlador {$nombreControlador} no existe.");
+    }
+}
+
+Route::get('/deshidratadores/{nombre}/export-excel', [DeshidratadorController::class, 'exportExcel'])->name('deshidratadores.exportExcel');
 Route::get('/deshidratadores/create', [DeshidratadorController::class, 'create'])->name('deshidratadores.create');
 Route::get('/deshidratadores-list', [DeshidratadorController::class, 'listDeshidratadores'])->name('deshidratadores.list');
 Route::post('/deshidratadores/store', [DeshidratadorController::class, 'store'])->name('deshidratadores.store');
