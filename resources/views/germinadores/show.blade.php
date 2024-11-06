@@ -56,14 +56,14 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Mostrar solo los últimos 5 registros -->
-            @foreach($luz as $dato)
-                <tr>
-                    <td>{{ $dato->luz }}</td>
-                    <td>{{ $dato->fecha_actual }}</td>
-                </tr>
-            @endforeach
-        </tbody>
+    @foreach($luz->reverse() as $dato)
+        <tr>
+            <td>{{ $dato->luz }}</td>
+            <td>{{ $dato->fecha_actual }}</td>
+        </tr>
+    @endforeach
+</tbody>
+
     </table>
     </div>
     </div>
@@ -81,13 +81,13 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($temperatura_humedad as $dato)
-                <tr>
-                    <td>{{ $dato->temperatura }}</td>
-                    <td>{{ $dato->humedad }}</td>
-                    <td>{{ $dato->fecha_actual }}</td>
-                </tr>
-            @endforeach
+        @foreach($temperatura_humedad->reverse() as $dato)
+            <tr>
+                <td>{{ $dato->temperatura }}</td>
+                <td>{{ $dato->humedad }}</td>
+                 <td>{{ $dato->fecha_actual }}</td>
+            </tr>
+        @endforeach
         </tbody>
     </table>
 </div>
