@@ -1,11 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DHT22Controller;
 use App\Http\Controllers\GerminadorController;
 use App\Http\Controllers\DeshidratadorController;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\LechugonesController;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------

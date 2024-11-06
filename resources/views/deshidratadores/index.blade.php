@@ -104,54 +104,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #e9ecef;
-    }
-    .container {
-        margin: 20px auto;
-        max-width: 1200px;
-    }
-    .card {
-        background: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    h2, h3 {
-        color: #6c1d45; /* Color del encabezado */
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #ffffff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    th, td {
-        border: 1px solid #ddd;
-        padding: 12px;
-        text-align: center;
-    }
-    th {
-        background-color: #6c1d45; /* Color del encabezado de la tabla */
-        color: white;
-    }
-    .table-container {
-        margin-top: 20px; /* Espacio entre la sección de tarjetas y la tabla */
-    }
-    .table-responsive {
-        max-height: 200px; /* Altura máxima para habilitar scroll vertical */
-        overflow-y: auto; /* Scroll vertical */
-        margin-bottom: 20px; /* Espacio entre tablas */
-        border-radius: 8px; /* Bordes redondeados para la tabla */
-        background: #f8f9fa; /* Fondo claro para el área de la tabla */
-    }
-</style>
+<style>body{font-family:Arial,sans-serif;margin:0;padding:0;background-color:#e9ecef}.container{margin:20px auto;max-width:1200px}.card{background:#fff;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.1);padding:20px;text-align:center;margin-bottom:20px}h2,h3{color:#6c1d45}table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 0 10px rgba(0,0,0,.1)}th,td{border:1px solid #ddd;padding:12px;text-align:center}th{background-color:#6c1d45;color:#fff}.table-container{margin-top:20px}.table-responsive{max-height:200px;overflow-y:auto;margin-bottom:20px;border-radius:8px;background:#f8f9fa}</style>
 
 @endsection

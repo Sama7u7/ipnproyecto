@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
 <header>
-        
+
         <!-- Header de la pagina -->
         @include('partials.menu')
      </header>
@@ -13,45 +13,13 @@
     <title>PROYECTO IPN</title>
     <!-- Aquí puedes agregar tus estilos CSS -->
     <link href="{{ asset('css/style3.css') }}"  rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la ventana */
-             margin: 0;
-            
-        }
-        .navbar {
-            background-color: #6c1d45;padding-left: 40px;
-        }
-        .navbar-brand {
-            color: #fff;
-            padding-left: 40px;
-            font-weight: bold;
-        }
-        .navbar-nav .nav-link {
-            color: #fff;
-        }
-        main {
-        flex: 1; /* Se expande para ocupar el espacio restante */
-        }
-
-        footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    width: 100%;
-    background-color: #f8f9fa;
-    padding: 10px 0;
-}
+    <style>body{background-color:#f8f9fa;display:flex;flex-direction:column;min-height:100vh;margin:0}.navbar{background-color:#6c1d45;padding-left:40px}.navbar-brand{color:#fff;padding-left:40px;font-weight:700}.navbar-nav .nav-link{color:#fff}main{flex:1}footer{display:flex;justify-content:center;align-items:center;text-align:center;width:100%;background-color:#f8f9fa;padding:10px 0}
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        
+
 </head>
 <body>
-   
+
 
     <main>
         <!-- Aquí se incluirá el contenido específico de cada página -->
