@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\File;
 
 class GerminadorController extends Controller
 {
-   
- //FUNCION EXPORT EXCEL SIRVE PARA OBTENER LOS DATOS DE UN GERMINADOR EN ESPECIFICO Y VOLCARLOS A UN EXCEL 
+
+ //FUNCION EXPORT EXCEL SIRVE PARA OBTENER LOS DATOS DE UN GERMINADOR EN ESPECIFICO Y VOLCARLOS A UN EXCEL
     public function exportExcel($nombre)
 {
     // Sanitizar el nombre del germinador
@@ -138,9 +138,9 @@ class GerminadorController extends Controller
         // Contenido del controlador, incluyendo las rutas específicas dentro del propio controlador y usando el nombre en minúsculas
         $controllerContent = <<<EOD
         <?php
-        
+
         namespace App\Http\Controllers;
-        
+
         use Illuminate\Http\Request;
         use Illuminate\Support\Facades\DB;
         use Illuminate\Support\Facades\Route;
@@ -193,7 +193,7 @@ class GerminadorController extends Controller
 
 
 
-    //FUNCION SHOW SIRVE PARA MOSTRAR LOS DATOS DE UN GERMINADOR EN ESPECIFICO AL PRESIONAR EL BOTON VER DATOS 
+    //FUNCION SHOW SIRVE PARA MOSTRAR LOS DATOS DE UN GERMINADOR EN ESPECIFICO AL PRESIONAR EL BOTON VER DATOS
     public function show($nombre)
 {
     // Sanitizar el nombre del germinador
@@ -215,6 +215,76 @@ class GerminadorController extends Controller
 
     // Retornar vista con los datos
     return view('germinadores.show', compact('luz','temperatura_humedad', 'fotos', 'nombre','ultimo_dato','ultimo_dato_bh1750'));
+}
+
+public function edit($id)
+    {
+        // Obtener el germinador de la base de datos
+        $germinador = DB::table('germinadores')->where('id', $id)->first();
+
+        if (!$germinador) {
+            return redirect()->route('germinadores.index')->with('error', 'Germinador no encontrado.');
+        }
+
+        return view('admin.editarGerminador', compact('germinador'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+        ]);
+
+        // Actualizar el germinador en la base de datos
+        DB::table('germinadores')
+            ->where('id', $id)
+            ->update([
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('dashboard')->with('success', 'Germinador actualizado con éxito.');
+    }
+
+    public function destroy($id)
+{
+    // Obtener el germinador de la base de datos
+    $germinador = DB::table('germinadores')->where('id', $id)->first();
+
+    if (!$germinador) {
+        return redirect()->route('germinadores.index')->with('error', 'Germinador no encontrado.');
+    }
+
+    // Sanitizar el nombre del germinador
+    $nombre_sanitizado = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($germinador->nombre));
+
+    // Eliminar las tablas relacionadas con el germinador
+    if (Schema::hasTable("{$nombre_sanitizado}_luz")) {
+        Schema::dropIfExists("{$nombre_sanitizado}_luz");
+    }
+
+    if (Schema::hasTable("{$nombre_sanitizado}_temperatura_humedad")) {
+        Schema::dropIfExists("{$nombre_sanitizado}_temperatura_humedad");
+    }
+
+    if (Schema::hasTable("{$nombre_sanitizado}_fotos")) {
+        Schema::dropIfExists("{$nombre_sanitizado}_fotos");
+    }
+
+    // Eliminar el controlador dinámico
+    $controllerPath = app_path("Http/Controllers/{$nombre_sanitizado}Controller.php");
+    if (File::exists($controllerPath)) {
+        File::delete($controllerPath);
+    }
+
+    // Eliminar el germinador de la base de datos
+    DB::table('germinadores')->where('id', $id)->delete();
+
+    // Redirigir con un mensaje de éxito
+    return redirect()->route('dashboard')->with('success', 'Germinador y sus recursos eliminados con éxito.');
 }
 
 

@@ -3,9 +3,7 @@
 @section('content')
     <div class="container">
         <h2>Lista de Dehidratadores</h2>
-        <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
-        <a href="{{ route('deshidratadores.create') }}" class="btn btn-primary mb-3">Crear Deshidratador</a>
-</div>
+
         @if($deshidratadores->isEmpty())
             <p>No hay deshidratadores creados aún.</p>
         @else

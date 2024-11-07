@@ -3,9 +3,7 @@
 @section('content')
     <div class="container">
         <h2>Lista de Germinadores</h2>
-        <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
-        <a href="{{ route('germinadores.create') }}" class="btn btn-primary mb-3">Crear Germinador</a>
-</div>
+
         @if($germinadores->isEmpty())
             <p>No hay germinadores creados aún.</p>
         @else

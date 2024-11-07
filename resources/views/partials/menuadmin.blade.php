@@ -14,13 +14,13 @@
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/"><h4>Inicio</h4></a>
+                    <a class="nav-link" href="/dashboard"><h4>Inicio</h4></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/germinadores-list"><h4>Germinadores</h4></a>
+                    <a class="nav-link" href="/usuarios/crear"><h4>Agregar usuario</h4></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/deshidratadores-list"><h4>Deshidratador</h4></a>
+                    <a class="nav-link" href="/usuarios/list"><h4>Listado de usuarios</h4></a>
                 </li>
             </ul>
         </div>
@@ -28,7 +28,10 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/dashboard"><h4>Dashboard</h4></a>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-link nav-link text-white">Cerrar sesión</button>
+                    </form>
                 </li>
             </ul>
     </div>

@@ -170,13 +170,13 @@ class DeshidratadorController extends Controller
         // Contenido del controlador
         $controllerContent = <<<EOD
         <?php
-        
+
         namespace App\Http\Controllers;
-        
+
         use Illuminate\Http\Request;
         use Illuminate\Support\Facades\DB;
         use Illuminate\Support\Facades\Route;
-        
+
         class {$nombreControlador} extends Controller
         {
             public function __construct()
@@ -184,7 +184,7 @@ class DeshidratadorController extends Controller
                 Route::post("/deshidratadores/{$nombre_min}/data", [self::class, 'receiveData'])
                     ->name("deshidratadores.{$nombre_min}.data");
             }
-        
+
             public function receiveData(Request \$request)
             {
                 // Validar los datos
@@ -197,54 +197,54 @@ class DeshidratadorController extends Controller
                     'humedad3' => 'required|numeric',
                     'peso' => 'required|numeric',
                 ]);
-        
+
                 // Insertar los datos del primer sensor DHT22 en la tabla dht1
                 DB::table("{$nombre_min}_dht1")->insert([
                     'temperatura' => \$request->input('temperatura1'),
                     'humedad' => \$request->input('humedad1'),
                     'fecha_actual' => now(),
                 ]);
-        
+
                 // Insertar los datos del segundo sensor DHT22 en la tabla dht2
                 DB::table("{$nombre_min}_dht2")->insert([
                     'temperatura' => \$request->input('temperatura2'),
                     'humedad' => \$request->input('humedad2'),
                     'fecha_actual' => now(),
                 ]);
-        
+
                 // Insertar los datos del tercer sensor DHT22 en la tabla dht3
                 DB::table("{$nombre_min}_dht3")->insert([
                     'temperatura' => \$request->input('temperatura3'),
                     'humedad' => \$request->input('humedad3'),
                     'fecha_actual' => now(),
                 ]);
-        
-             
+
+
                 // Insertar los datos del sensor de peso (HX711)
                 DB::table("{$nombre_min}_peso")->insert([
                     'peso' => \$request->input('peso'),
                     'fecha_actual' => now(),
                 ]);
-        
+
                 return response()->json(['message' => 'Datos recibidos correctamente.'], 200);
             }
         }
         EOD;
-        
+
         // Guardar el controlador con su contenido
         File::put($controllerPath, $controllerContent);
 
         // Redirigir a la lista de deshidratadores
-        return redirect()->route('deshidratadores.list')->with('success', 'Deshidratador creado exitosamente.');
+        return redirect()->route('dashboard')->with('success', 'Deshidratador creado exitosamente.');
     }
 
 
-     //FUNCION SHOW SIRVE PARA MOSTRAR LOS DATOS DE UN DESHIDRATADOR EN ESPECIFICO AL PRESIONAR EL BOTON VER DATOS 
+     //FUNCION SHOW SIRVE PARA MOSTRAR LOS DATOS DE UN DESHIDRATADOR EN ESPECIFICO AL PRESIONAR EL BOTON VER DATOS
      public function show($nombre)
  {
      // Sanitizar el nombre del germinador
      $nombre_sanitizado = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($nombre));
- 
+
      // Verificar si las tablas existen
      if (!Schema::hasTable("{$nombre_sanitizado}_dht1") ||
          !Schema::hasTable("{$nombre_sanitizado}_dht2") ||
@@ -252,22 +252,96 @@ class DeshidratadorController extends Controller
          !Schema::hasTable("{$nombre_sanitizado}_peso")) {
          return redirect()->route('deshidratadores.list')->with('error', 'El germinador no existe o sus tablas no han sido creadas.');
      }
- 
+
      // Obtener datos de las tablas
      $peso = DB::table("{$nombre_sanitizado}_peso")->get();
      $dht1 = DB::table("{$nombre_sanitizado}_dht1")->get();
      $dht2 = DB::table("{$nombre_sanitizado}_dht2")->get();
      $dht3 = DB::table("{$nombre_sanitizado}_dht3")->get();
-     
+
      $ultimo_dato_dht1 = DB::table("{$nombre_sanitizado}_dht1")->latest('fecha_actual')->first();
      $ultimo_dato_dht2 = DB::table("{$nombre_sanitizado}_dht2")->latest('fecha_actual')->first();
      $ultimo_dato_dht3 = DB::table("{$nombre_sanitizado}_dht3")->latest('fecha_actual')->first();
      $ultimo_dato_peso = DB::table("{$nombre_sanitizado}_peso")->latest('fecha_actual')->first();
- 
+
      // Retornar vista con los datos
      return view('deshidratadores.show', compact('nombre','peso','dht1', 'dht2', 'dht3','ultimo_dato_dht1','ultimo_dato_dht2','ultimo_dato_dht1','ultimo_dato_dht2','ultimo_dato_dht3','ultimo_dato_peso'));
  }
- 
- 
- 
+
+  // Método para editar un deshidratador
+  public function edit($id)
+  {
+      $deshidratador = DB::table('deshidratadores')->where('id', $id)->first();
+      return view('admin.editarDeshidratador', compact('deshidratador'));
+  }
+
+  // Método para actualizar un deshidratador
+  public function update(Request $request, $id)
+  {
+      // Validar los datos
+      $request->validate([
+          'nombre' => 'required|string|max:255',
+          'descripcion' => 'required|string',
+      ]);
+
+      $nombre = $request->input('nombre');
+      $descripcion = $request->input('descripcion');
+
+      // Actualizar los datos del deshidratador en la base de datos
+      DB::table('deshidratadores')
+          ->where('id', $id)
+          ->update([
+              'nombre' => $nombre,
+              'descripcion' => $descripcion,
+              'updated_at' => now(),
+          ]);
+
+      return redirect()->route('dashboard')->with('success', 'Deshidratador actualizado exitosamente.');
+  }
+
+  // Método para eliminar un deshidratador
+  public function destroy($id)
+{
+    // Obtener el deshidratador de la base de datos
+    $deshidratador = DB::table('deshidratadores')->where('id', $id)->first();
+
+    if (!$deshidratador) {
+        return redirect()->route('deshidratadores.index')->with('error', 'Deshidratador no encontrado.');
+    }
+
+    // Sanitizar el nombre del deshidratador
+    $nombre_sanitizado = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($deshidratador->nombre));
+
+    // Eliminar las tablas relacionadas con el deshidratador
+    if (Schema::hasTable("{$nombre_sanitizado}_peso")) {
+        Schema::dropIfExists("{$nombre_sanitizado}_peso");
+    }
+
+    if (Schema::hasTable("{$nombre_sanitizado}_dht1")) {
+        Schema::dropIfExists("{$nombre_sanitizado}_dht1");
+    }
+
+    if (Schema::hasTable("{$nombre_sanitizado}_dht2")) {
+        Schema::dropIfExists("{$nombre_sanitizado}_dht2");
+    }
+
+    if (Schema::hasTable("{$nombre_sanitizado}_dht3")) {
+        Schema::dropIfExists("{$nombre_sanitizado}_dht3");
+    }
+
+    // Eliminar el controlador dinámico
+    $controllerPath = app_path("Http/Controllers/{$nombre_sanitizado}Controller.php");
+    if (File::exists($controllerPath)) {
+        File::delete($controllerPath);
+    }
+
+    // Eliminar el deshidratador de la base de datos
+    DB::table('deshidratadores')->where('id', $id)->delete();
+
+    // Redirigir con un mensaje de éxito
+    return redirect()->route('dashboard')->with('success', 'Deshidratador y sus recursos eliminados con éxito.');
+}
+
+
+
 }
