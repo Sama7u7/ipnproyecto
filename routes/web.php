@@ -28,6 +28,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Ruta que devuelve el token CSRF
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
+
+
 Route::middleware(['auth.check'])->group(function () {
     // Rutas de Dashboard y Usuarios
     Route::get('/dashboard', [DashboardController::class, 'show'])->name('dashboard');

@@ -1,11 +1,3 @@
-CREATE DATABASE IF NOT EXISTS `ipnproyecto` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-
-USE `ipnproyecto`;
--- --------------------------------------------------------
-
---
--- Table structure for table `deshidratadores`
---
 
 CREATE TABLE `deshidratadores` (
   `id` int NOT NULL,
