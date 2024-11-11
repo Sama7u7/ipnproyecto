@@ -57,10 +57,21 @@ class UserController extends Controller
          ]);
 
          $usuario = User::findOrFail($id);
-         $usuario->update($request->all());
+
+         // Si se envía una contraseña no vacía, actualízala
+         if ($request->filled('password')) {
+             $request->validate([
+                 'password' => 'required|string|min:8|confirmed',
+             ]);
+             $usuario->password = bcrypt($request->input('password'));
+         }
+
+         // Actualizar otros campos
+         $usuario->update($request->except('password'));
 
          return redirect()->route('usuarios.index')->with('success', 'Usuario actualizado con éxito.');
      }
+
 
      // Elimina un usuario
      public function destroy($id)

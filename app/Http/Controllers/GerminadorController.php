@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\File;
 class GerminadorController extends Controller
 {
 
- //FUNCION EXPORT EXCEL SIRVE PARA OBTENER LOS DATOS DE UN GERMINADOR EN ESPECIFICO Y VOLCARLOS A UN EXCEL
+    //COMIENZA FUNCION EXPORT EXCEL
+
+    //FUNCION EXPORT EXCEL SIRVE PARA OBTENER LOS DATOS DE UN GERMINADOR EN ESPECIFICO Y VOLCARLOS A UN EXCEL
     public function exportExcel($nombre)
 {
     // Sanitizar el nombre del germinador
@@ -68,6 +70,9 @@ class GerminadorController extends Controller
     exit();
 }
 
+    //TERMINA FUNCION EXPORT EXCEL
+    //COMIENZA FUNCION  LIST GERMINADORES
+
 
     // Método para mostrar la lista de TODOS los germinadores
     public function listGerminadores()
@@ -76,11 +81,17 @@ class GerminadorController extends Controller
         return view('germinadores.list', compact('germinadores'));
     }
 
+    //TERMINA FUNCION  LIST GERMINADORES
+    //COMIENZA FUNCION CREATE
+
     // Método para mostrar el formulario de creación de un nuevo germinador
     public function create()
     {
         return view('germinadores.create');
     }
+
+    //TERMINA FUNCION CREATE
+    //COMIENZA FUNCION STORE
 
     // Método para almacenar un nuevo germinador
     public function store(Request $request)
@@ -188,10 +199,11 @@ class GerminadorController extends Controller
         // Escribir el contenido en el archivo del controlador
         File::put($controllerPath, $controllerContent);
 
-        return redirect()->route('germinadores.list')->with('success', 'Germinador y controlador creados exitosamente.');
+        return redirect()->route('dashboard')->with('success', 'Germinador y controlador creados exitosamente.');
     }
 
-
+    //TERMINA FUNCION STORE
+    //COMIENZA FUNCION SHOW
 
     //FUNCION SHOW SIRVE PARA MOSTRAR LOS DATOS DE UN GERMINADOR EN ESPECIFICO AL PRESIONAR EL BOTON VER DATOS
     public function show($nombre)
@@ -216,6 +228,33 @@ class GerminadorController extends Controller
     // Retornar vista con los datos
     return view('germinadores.show', compact('luz','temperatura_humedad', 'fotos', 'nombre','ultimo_dato','ultimo_dato_bh1750'));
 }
+    //TERMINA FUNCION SHOW
+    //COMIENZA FUNCION SHOWBACK
+
+public function showback($nombre)
+{
+    // Sanitizar el nombre del germinador
+    $nombre_sanitizado = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($nombre));
+
+    // Verificar si las tablas existen
+    if (!Schema::hasTable("{$nombre_sanitizado}_luz") ||
+        !Schema::hasTable("{$nombre_sanitizado}_temperatura_humedad") ||
+        !Schema::hasTable("{$nombre_sanitizado}_fotos")) {
+        return redirect()->route('germinadores.list')->with('error', 'El germinador no existe o sus tablas no han sido creadas.');
+    }
+
+    // Obtener datos de las tablas
+    $luz = DB::table("{$nombre_sanitizado}_luz")->get();
+    $temperatura_humedad = DB::table("{$nombre_sanitizado}_temperatura_humedad")->get();
+    $fotos = DB::table("{$nombre_sanitizado}_fotos")->get();
+    $ultimo_dato = DB::table("{$nombre_sanitizado}_temperatura_humedad")->latest('fecha_actual')->first();
+    $ultimo_dato_bh1750 = DB::table("{$nombre_sanitizado}_luz")->latest('fecha_actual')->first();
+
+    // Retornar vista con los datos
+    return view('admin.mostrarGerminador', compact('luz','temperatura_humedad', 'fotos', 'nombre','ultimo_dato','ultimo_dato_bh1750'));
+}
+ //TERMINA FUNCION SHOWBACK
+ //COMIENZA FUNCION EDIT
 
 public function edit($id)
     {
@@ -223,31 +262,152 @@ public function edit($id)
         $germinador = DB::table('germinadores')->where('id', $id)->first();
 
         if (!$germinador) {
-            return redirect()->route('germinadores.index')->with('error', 'Germinador no encontrado.');
+            return redirect()->route('dashboard')->with('error', 'Germinador no encontrado.');
         }
 
         return view('admin.editarGerminador', compact('germinador'));
     }
 
-    public function update(Request $request, $id)
-    {
-        // Validar los datos del formulario
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-        ]);
 
-        // Actualizar el germinador en la base de datos
-        DB::table('germinadores')
-            ->where('id', $id)
-            ->update([
-                'nombre' => $request->nombre,
-                'descripcion' => $request->descripcion,
-                'updated_at' => now(),
+        //TERMINA FUNCION EDIT
+        //COMIENZA FUNCION UPDATE
+
+        public function update(Request $request, $id)
+        {
+            // Validar los datos del formulario
+            $request->validate([
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'nullable|string',
             ]);
 
-        return redirect()->route('dashboard')->with('success', 'Germinador actualizado con éxito.');
-    }
+            // Obtener el germinador actual
+            $germinador = DB::table('germinadores')->where('id', $id)->first();
+            if (!$germinador) {
+                return redirect()->route('dashboard')->with('error', 'Germinador no encontrado.');
+            }
+
+            $oldName = strtolower($germinador->nombre); // Nombre actual antes de la actualización
+            $newName = strtolower($request->nombre);    // Nuevo nombre del germinador
+
+            // Actualizar el germinador en la base de datos
+            DB::table('germinadores')
+                ->where('id', $id)
+                ->update([
+                    'nombre' => $request->nombre,
+                    'descripcion' => $request->descripcion,
+                    'updated_at' => now(),
+                ]);
+
+            // Renombrar las tablas asociadas
+            $this->renameTables($oldName, $newName);
+
+            // Actualizar el contenido del controlador dinámico
+            $this->updateControllerContent($oldName, $newName);
+
+            return redirect()->route('dashboard')->with('success', 'Germinador y sus recursos actualizados con éxito.');
+        }
+
+        //TERMINA FUNCION UPDATE
+        //COMIENZA FUNCION RENAMETABLES
+        private function renameTables($oldName, $newName)
+        {
+            $tables = [
+                "{$oldName}_luz" => "{$newName}_luz",
+                "{$oldName}_temperatura_humedad" => "{$newName}_temperatura_humedad",
+                "{$oldName}_fotos" => "{$newName}_fotos",
+            ];
+
+            foreach ($tables as $oldTable => $newTable) {
+                if (Schema::hasTable($oldTable)) {
+                    DB::statement("RENAME TABLE {$oldTable} TO {$newTable}");
+                }
+            }
+        }
+
+
+
+        //TERMINA FUNCION RENAMETABLES
+        //COMIENZA FUNCION UPDATEcontrollerContent
+
+        public function updateControllerContent($oldName, $newName)
+        {
+            // Formatear los nombres para asegurarse de que sean válidos
+            $oldNameSanitized = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', $oldName));
+            $newNameSanitized = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', $newName));
+
+            $oldControllerName = ucfirst($oldNameSanitized) . 'Controller';
+            $newControllerName = ucfirst($newNameSanitized) . 'Controller';
+
+            $oldControllerPath = app_path("Http/Controllers/{$oldControllerName}.php");
+            $newControllerPath = app_path("Http/Controllers/{$newControllerName}.php");
+
+            if (File::exists($oldControllerPath)) {
+                // Leer el contenido del controlador existente
+                $controllerContent = File::get($oldControllerPath);
+
+                // Actualizar el contenido del controlador
+                $updatedContent = <<<EOD
+                <?php
+
+                namespace App\Http\Controllers;
+
+                use Illuminate\Http\Request;
+                use Illuminate\Support\Facades\DB;
+                use Illuminate\Support\Facades\Route;
+
+                class {$newControllerName} extends Controller
+                {
+                    public function __construct()
+                    {
+                        // Crear la ruta para recibir los datos directamente en este controlador usando el nombre actualizado
+                        Route::post("/germinadores/{$newNameSanitized}/data", [self::class, 'receiveData'])
+                            ->name("germinadores.{$newNameSanitized}.data");
+                    }
+
+                    public function receiveData(Request \$request)
+                    {
+                        // Validar los datos que recibes del ESP32
+                        \$request->validate([
+                            'temperatura' => 'required|numeric',
+                            'humedad' => 'required|numeric',
+                            'luz' => 'required|numeric',
+                        ]);
+
+                        // Obtener los datos
+                        \$temperatura = \$request->input('temperatura');
+                        \$humedad = \$request->input('humedad');
+                        \$luz = \$request->input('luz');
+
+                        // Insertar los datos en la base de datos
+                        DB::table("{$newNameSanitized}_temperatura_humedad")->insert([
+                            'temperatura' => \$temperatura,
+                            'humedad' => \$humedad,
+                            'fecha_actual' => now(),
+                        ]);
+
+                        DB::table("{$newNameSanitized}_luz")->insert([
+                            'luz' => \$luz,
+                            'fecha_actual' => now(),
+                        ]);
+
+                        return response()->json(['success' => 'Datos recibidos correctamente.']);
+                    }
+                }
+                EOD;
+
+                // Guardar el nuevo archivo con el nombre actualizado
+                File::put($newControllerPath, $updatedContent);
+
+                // Eliminar el archivo viejo si el nombre cambió
+                if ($oldControllerPath !== $newControllerPath) {
+                    File::delete($oldControllerPath);
+                }
+            }
+        }
+
+
+        //TERMINA FUNCION UPDATE
+    //COMIENZA FUNCION DESTROY
 
     public function destroy($id)
 {

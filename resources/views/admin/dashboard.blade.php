@@ -2,6 +2,10 @@
 
 @section('content')
 <div class="container">
+    <div style="display: flex; justify-content: center; align-items: center; height: 5vh;">
+       <H2>GERMINADORES</H2>
+    </div>
+<div class="container">
     <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
         <a href="{{ route('germinadores.create') }}" class="btn btn-primary mb-3">Crear Germinador</a>
     </div>
@@ -28,7 +32,7 @@
                         <td>{{ $germinador->created_at }}</td>
                         <td>
                             <div style="display: flex; justify-content: center; align-items: center; gap: 5px;">
-                                <a href="{{ route('germinadores.show', $germinador->nombre) }}" class="btn btn-info">Ver datos</a>
+                                <a href="{{ route('admingerminadores.show', $germinador->nombre) }}" class="btn btn-info">Ver datos</a>
                                 <a href="{{ route('germinadores.edit', $germinador->id) }}" class="btn btn-warning">Editar</a>
                                 <form action="{{ route('germinadores.destroy', $germinador->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este germinador y sus tablas asociadas?');">
                                     @csrf
@@ -44,6 +48,11 @@
     @endif
 
     <!-- Deshidratadores -->
+    <br>
+    <div class="container">
+        <div style="display: flex; justify-content: center; align-items: center; height: 5vh;">
+           <H2>DESHIDRATADORES</H2>
+        </div>
     <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
         <a href="{{ route('deshidratadores.create') }}" class="btn btn-primary mb-3">Crear Deshidratador</a>
     </div>
@@ -70,6 +79,7 @@
                         <td>{{ $deshidratador->created_at }}</td>
                         <td>
                             <div style="display: flex; justify-content: center; align-items: center; gap: 5px;">
+                                <a href="{{ route('admindeshidratadores.show', $deshidratador->nombre) }}" class="btn btn-info">Ver datos</a>
                                 <a href="{{ route('deshidratadores.edit', $deshidratador->id) }}" class="btn btn-warning btn-sm">Editar</a>
                                 <form action="{{ route('deshidratadores.destroy', $deshidratador->id) }}" method="POST" style="display:inline;">
                                     @csrf

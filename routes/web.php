@@ -28,6 +28,33 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::middleware(['auth.check'])->group(function () {
+    // Rutas de Dashboard y Usuarios
+    Route::get('/dashboard', [DashboardController::class, 'show'])->name('dashboard');
+    Route::get('/usuarios/crear', [UserController::class, 'create'])->name('usuarios.create');
+    Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
+    Route::get('/usuarios/list', [UserController::class, 'index'])->name('usuarios.index');
+    Route::get('/usuarios/{id}/editar', [UserController::class, 'edit'])->name('usuarios.edit');
+    Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
+    Route::delete('/usuarios/{id}', [UserController::class, 'destroy'])->name('usuarios.destroy');
+
+    // Rutas de Germinadores
+    Route::get('germinadores/{id}/edit', [GerminadorController::class, 'edit'])->name('germinadores.edit');
+    Route::put('germinadores/{id}', [GerminadorController::class, 'update'])->name('germinadores.update');
+    Route::delete('germinadores/{id}', [GerminadorController::class, 'destroy'])->name('germinadores.destroy');
+    Route::get('/germinadores/create', [GerminadorController::class, 'create'])->name('germinadores.create');
+    Route::post('/germinadores/store', [GerminadorController::class, 'store'])->name('germinadores.store');
+    Route::get('/admin/germinadores/{nombre}', [GerminadorController::class, 'showback'])->name('admingerminadores.show');
+
+    // Rutas de Deshidratadores
+    Route::get('/deshidratadores/{id}/edit', [DeshidratadorController::class, 'edit'])->name('deshidratadores.edit');
+    Route::put('/deshidratadores/{id}', [DeshidratadorController::class, 'update'])->name('deshidratadores.update');
+    Route::delete('/deshidratadores/{id}', [DeshidratadorController::class, 'destroy'])->name('deshidratadores.destroy');
+    Route::get('/deshidratadores/create', [DeshidratadorController::class, 'create'])->name('deshidratadores.create');
+    Route::post('/deshidratadores/store', [DeshidratadorController::class, 'store'])->name('deshidratadores.store');
+    Route::get('/admin/deshidratadores/{nombre}', [DeshidratadorController::class, 'showback'])->name('admindeshidratadores.show');
+});
+
 
 // Obtener todos los germinadores de la base de datos
 
@@ -53,10 +80,9 @@ foreach ($germinadores as $germinador) {
 
 
 Route::get('/germinadores/{nombre}/export-excel', [GerminadorController::class, 'exportExcel'])->name('germinadores.exportExcel');
-Route::get('/germinadores/create', [GerminadorController::class, 'create'])->name('germinadores.create');
 Route::get('/germinadores/{nombre}', [GerminadorController::class, 'show'])->name('germinadores.show');
 Route::get('/germinadores-list', [GerminadorController::class, 'listGerminadores'])->name('germinadores.list');
-Route::post('/germinadores/store', [GerminadorController::class, 'store'])->name('germinadores.store');
+
 
 // Obtener todos los deshidratadores de la base de datos
 $deshidratadores = DB::table('deshidratadores')->get();
@@ -81,7 +107,6 @@ foreach ($deshidratadores as $deshidratador) {
 
 Route::get('/deshidratadores/{nombre}/export-excel', [DeshidratadorController::class, 'exportExcel'])->name('deshidratadores.exportExcel');
 Route::get('/deshidratadores-list', [DeshidratadorController::class, 'listDeshidratadores'])->name('deshidratadores.list');
-Route::post('/deshidratadores/store', [DeshidratadorController::class, 'store'])->name('deshidratadores.store');
 Route::get('/deshidratadores/{nombre}', [DeshidratadorController::class, 'show'])->name('deshidratador.show');
 
 Route::get('/login', function () {
@@ -92,25 +117,3 @@ Route::post('/logout', function () {
     Auth::logout();  // Cierra la sesión del usuario
     return redirect('/');  // Redirige al formulario de login
 })->name('logout');
-
-Route::middleware(['auth.check'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'show'])->name('dashboard');
-    Route::get('/usuarios/crear', [UserController::class, 'create'])->name('usuarios.create');
-    Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
-    Route::get('/usuarios/list', [UserController::class, 'index'])->name('usuarios.index');
-    Route::get('/usuarios/{id}/editar', [UserController::class, 'edit'])->name('usuarios.edit');
-    Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
-    Route::delete('/usuarios/{id}', [UserController::class, 'destroy'])->name('usuarios.destroy');
-
-
-    Route::get('germinadores/{id}/edit', [GerminadorController::class, 'edit'])->name('germinadores.edit');
-    Route::put('germinadores/{id}', [GerminadorController::class, 'update'])->name('germinadores.update');
-    Route::delete('germinadores/{id}', [GerminadorController::class, 'destroy'])->name('germinadores.destroy');
-    Route::get('/germinadores/create', [GerminadorController::class, 'create'])->name('germinadores.create');
-
-    Route::get('/deshidratadores/{id}/edit', [DeshidratadorController::class, 'edit'])->name('deshidratadores.edit');
-    Route::put('/deshidratadores/{id}', [DeshidratadorController::class, 'update'])->name('deshidratadores.update');
-    Route::delete('/deshidratadores/{id}', [DeshidratadorController::class, 'destroy'])->name('deshidratadores.destroy');
-    Route::get('/deshidratadores/create', [DeshidratadorController::class, 'create'])->name('deshidratadores.create');
-
-});

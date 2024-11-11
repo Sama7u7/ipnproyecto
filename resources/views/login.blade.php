@@ -21,7 +21,7 @@
 
                     <div class="d-flex align-items-center mb-3 pb-1">
                         <a href="/login">
-                            <img src="{{ asset('logoipn.svg') }}" alt="Logo CICATA" style="width: 90px; height: 80px;">
+                            <img src="{{ asset('logoipn.svg') }}" alt="Logo CICATA" style="width: 100px; height: 90px;">
                          </a>
 
                       <span class="h1 fw-bold mb-0" style="color: #761345;">CICATA</span>
