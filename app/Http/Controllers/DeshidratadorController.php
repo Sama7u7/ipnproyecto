@@ -24,7 +24,8 @@ class DeshidratadorController extends Controller
         $datosdh1 = DB::table("{$nombre_sanitizado}_dht1")->get();
         $datosdh2 = DB::table("{$nombre_sanitizado}_dht2")->get();
         $datosdh3 = DB::table("{$nombre_sanitizado}_dht3")->get();
-        $datospeso = DB::table("{$nombre_sanitizado}_peso")->get();
+        $datospesolvl = DB::table("{$nombre_sanitizado}_pesolvl")->get();
+        $datospesogral = DB::table("{$nombre_sanitizado}_pesogral")->get();
 
         // Crear un nuevo objeto Spreadsheet
         $spreadsheet = new Spreadsheet();
@@ -77,12 +78,22 @@ class DeshidratadorController extends Controller
 
         // Escribir los datos de peso
         $row = 2;
-        foreach ($datospeso as $dato) {
+        foreach ($datospesolvl as $dato) {
             $sheet->setCellValue('P' . $row, $dato->id);
             $sheet->setCellValue('Q' . $row, $dato->peso);
             $sheet->setCellValue('R' . $row, $dato->fecha_actual);
             $row++;
         }
+
+        // Escribir los datos de peso
+        $row = 2;
+        foreach ($datospesogral as $dato) {
+            $sheet->setCellValue('S' . $row, $dato->id);
+            $sheet->setCellValue('T' . $row, $dato->peso);
+            $sheet->setCellValue('U' . $row, $dato->fecha_actual);
+            $row++;
+        }
+
 
         // Establecer el nombre del archivo
         $filename = 'datos_deshidratador_' . $nombre_sanitizado . '_' . date('Y-m-d') . '.xlsx';
