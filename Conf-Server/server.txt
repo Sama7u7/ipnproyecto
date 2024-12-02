@@ -1,0 +1,7 @@
+<VirtualHost *:80>
+    ServerAdmin admin@miweb.local
+    DocumentRoot "C:/xampp/htdocs/miweb"
+    ServerName miweb.local
+    ErrorLog "logs/miweb-error.log"
+    CustomLog "logs/miweb-access.log" common
+</VirtualHost>
